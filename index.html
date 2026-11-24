@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Workshop</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://jsdelivr.net",
+        "three/addons/": "https://jsdelivr.net"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="scene-canvas"></canvas>
+
+  <header class="top-bar">
+    <div>
+      <h1>3D WORKSHOP</h1>
+      <p id="model-info">Orbital Rocket — Prototype v1</p>
+    </div>
+    <div class="controls">
+      <button id="wireframe-btn">Wireframe: OFF</button>
+      <button id="spin-btn">Auto-Spin: ON</button>
+    </div>
+  </header>
+
+  <nav class="project-bar" id="project-bar">
+    <!-- Buttons are generated automatically from app.js -->
+  </nav>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html> 
