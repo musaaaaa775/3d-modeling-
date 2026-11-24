@@ -61,23 +61,22 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // Build 3D Meshes (Vertices + Triangles)
     function buildRocket() {
       const verts = [], tris = [];
       const segs = 20;
-      // Nose tip
-      verts.push([0, 2.3, 0]); // 0
-      // Upper body ring (y = 1.3, r = 0.45)
+      const blue =;
+      const silver =;
+      const dark =;
+
+      verts.push([0, 2.3, 0]);
       for (let i = 0; i < segs; i++) {
         const a = (i / segs) * Math.PI * 2;
         verts.push([Math.cos(a) * 0.45, 1.3, Math.sin(a) * 0.45]);
       }
-      // Lower body ring (y = -1.2, r = 0.48)
       for (let i = 0; i < segs; i++) {
         const a = (i / segs) * Math.PI * 2;
         verts.push([Math.cos(a) * 0.48, -1.2, Math.sin(a) * 0.48]);
       }
-      // Engine nozzle ring (y = -1.65, r = 0.32)
       for (let i = 0; i < segs; i++) {
         const a = (i / segs) * Math.PI * 2;
         verts.push([Math.cos(a) * 0.32, -1.65, Math.sin(a) * 0.32]);
@@ -87,13 +86,12 @@
         const u1 = 1 + i, u2 = 1 + next;
         const l1 = 1 + segs + i, l2 = 1 + segs + next;
         const n1 = 1 + segs * 2 + i, n2 = 1 + segs * 2 + next;
-        tris.push({ idx: [0, u2, u1], color: [56, 189, 248] }); // Blue nose
-        tris.push({ idx: [u1, u2, l2], color: [226, 232, 240] }); // Silver hull
-        tris.push({ idx: [u1, l2, l1], color: [226, 232, 240] });
-        tris.push({ idx: [l1, l2, n2], color: [100, 116, 139] }); // Dark nozzle
-        tris.push({ idx: [l1, n2, n1], color: [100, 116, 139] });
+        tris.push({ a: 0, b: u2, c: u1, color: blue });
+        tris.push({ a: u1, b: u2, c: l2, color: silver });
+        tris.push({ a: u1, b: l2, c: l1, color: silver });
+        tris.push({ a: l1, b: l2, c: n2, color: dark });
+        tris.push({ a: l1, b: n2, c: n1, color: dark });
       }
-      // 4 Stabilizer Fins
       for (let f = 0; f < 4; f++) {
         const a = (f * Math.PI) / 2;
         const cos = Math.cos(a), sin = Math.sin(a);
@@ -102,10 +100,10 @@
         verts.push([cos * 1.05, -1.15, sin * 1.05]);
         verts.push([cos * 1.05, -1.45, sin * 1.05]);
         verts.push([cos * 0.48, -1.2, sin * 0.48]);
-        tris.push({ idx: [base, base + 1, base + 2], color: [56, 189, 248] });
-        tris.push({ idx: [base, base + 2, base + 3], color: [56, 189, 248] });
-        tris.push({ idx: [base, base + 2, base + 1], color: [56, 189, 248] });
-        tris.push({ idx: [base, base + 3, base + 2], color: [56, 189, 248] });
+        tris.push({ a: base, b: base + 1, c: base + 2, color: blue });
+        tris.push({ a: base, b: base + 2, c: base + 3, color: blue });
+        tris.push({ a: base, b: base + 2, c: base + 1, color: blue });
+        tris.push({ a: base, b: base + 3, c: base + 2, color: blue });
       }
       return { verts, tris };
     }
@@ -114,28 +112,24 @@
       const verts = [
         [-0.6,-0.6,-0.6],[0.6,-0.6,-0.6],[0.6,0.6,-0.6],[-0.6,0.6,-0.6],
         [-0.6,-0.6,0.6],[0.6,-0.6,0.6],[0.6,0.6,0.6],[-0.6,0.6,0.6],
-        // Left solar wing
         [-2.4,-0.35,0],[-0.7,-0.35,0],[-0.7,0.35,0],[-2.4,0.35,0],
-        // Right solar wing
         [0.7,-0.35,0],[2.4,-0.35,0],[2.4,0.35,0],[0.7,0.35,0]
       ];
-      const tris = [
-        { idx:[0,1,2],color:[250,204,21] },{ idx:[0,2,3],color:[250,204,21] },
-        { idx:[4,6,5],color:[250,204,21] },{ idx:[4,7,6],color:[250,204,21] },
-        { idx:[0,4,5],color:[234,179,8] },{ idx:[0,5,1],color:[234,179,8] },
-        { idx:[2,6,7],color:[234,179,8] },{ idx:[2,7,3],color:[234,179,8] },
-        { idx:[1,5,6],color:[202,138,4] },{ idx:[1,6,2],color:[202,138,4] },
-        { idx:[0,3,7],color:[202,138,4] },{ idx:[0,7,4],color:[202,138,4] },
-        { idx:[8,9,10],color:[56,189,248] },{ idx:[8,10,11],color:[56,189,248] },
-        { idx:[8,10,9],color:[56,189,248] },{ idx:[8,11,10],color:[56,189,248] },
-        { idx:[12,13,14],color:[56,189,248] },{ idx:[12,14,15],color:[56,189,248] },
-        { idx:[12,14,13],color:[56,189,248] },{ idx:[12,15,14],color:[56,189,248] }
+      const gold =;
+      const panel =;
+      const faces = [
+        [0,2,1,gold],[0,3,2,gold],[4,5,6,gold],[4,6,7,gold],
+        [0,1,5,gold],[0,5,4,gold],[2,3,7,gold],[2,7,6,gold],
+        [0,4,7,gold],[0,7,3,gold],[1,2,6,gold],[1,6,5,gold],
+        [8,9,10,panel],[8,10,11,panel],[8,10,9,panel],[8,11,10,panel],
+        [12,13,14,panel],[12,14,15,panel],[12,14,13,panel],[12,15,14,panel]
       ];
-      return { verts, tris };
+      return { verts, tris: faces.map(f => ({ a: f[0], b: f[1], c: f[2], color: f[3] })) };
     }
 
     function buildCapsule() {
       const verts = [[0, 1.4, 0], [0, -1.1, 0]], tris = [], segs = 20;
+      const white =, blue =, heat =;
       for (let i = 0; i < segs; i++) {
         const a = (i / segs) * Math.PI * 2;
         verts.push([Math.cos(a) * 0.55, 0.7, Math.sin(a) * 0.55]);
@@ -147,10 +141,10 @@
       for (let i = 0; i < segs; i++) {
         const n = (i + 1) % segs;
         const t1 = 2 + i, t2 = 2 + n, b1 = 2 + segs + i, b2 = 2 + segs + n;
-        tris.push({ idx:[0,t2,t1], color:[148,163,184] });
-        tris.push({ idx:[t1,t2,b2], color:[226,232,240] });
-        tris.push({ idx:[t1,b2,b1], color:[226,232,240] });
-        tris.push({ idx:[1,b1,b2], color:[249,115,22] }); // Heat shield
+        tris.push({ a: 0, b: t2, c: t1, color: blue });
+        tris.push({ a: t1, b: t2, c: b2, color: white });
+        tris.push({ a: t1, b: b2, c: b1, color: white });
+        tris.push({ a: 1, b: b1, c: b2, color: heat });
       }
       return { verts, tris };
     }
@@ -190,15 +184,15 @@
       e.target.classList.toggle('active', autoSpin);
     };
 
-    function project([x, y, z]) {
-      // Rotate Y then X
+    function project(pt) {
+      const x = pt[0], y = pt[1], z = pt[2];
       const cy = Math.cos(rotY), sy = Math.sin(rotY);
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const cx = Math.cos(rotX), sx = Math.sin(rotX);
       const y2 = y * cx - z1 * sx, z2 = y * sx + z1 * cx;
       const fov = Math.min(W, H) * 0.55 * zoom;
       const dist = 5.5 + z2;
-      return { x: W / 2 + (x1 * fov) / dist, y: H / 2 - (y2 * fov) / dist, z: z2, v: [x1, y2, z2] };
+      return { x: W / 2 + (x1 * fov) / dist, y: H / 2 - (y2 * fov) / dist, z: z2, vx: x1, vy: y2, vz: z2 };
     }
 
     function render() {
@@ -207,7 +201,6 @@
 
       if (autoSpin && !dragging) rotY += 0.012;
 
-      // Draw 3D floor grid
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
       ctx.lineWidth = 1;
       for (let g = -4; g <= 4; g++) {
@@ -217,11 +210,31 @@
         ctx.beginPath(); ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.stroke();
       }
 
-      const projVerts = currentMesh.verts.map(project);
+      const pv = currentMesh.verts.map(project);
       const renderTris = currentMesh.tris.map(t => {
-        const p0 = projVerts[t.idx[0]], p1 = projVerts[t.idx[1]], p2 = projVerts[t.idx[2]];
-        const ux = p1.v[0] - p0.v[0], uy = p1.v[1] - p0.v[1], uz = p1.v[2] - p0.v[2];
-        const vx = p2.v[0] - p0.v[0], vy = p2.v[1] - p0.v[1], vz = p2.v[2] - p0.v[2];
+        const p0 = pv[t.a], p1 = pv[t.b], p2 = pv[t.c];
+        const ux = p1.vx - p0.vx, uy = p1.vy - p0.vy, uz = p1.vz - p0.vz;
+        const vx = p2.vx - p0.vx, vy = p2.vy - p0.vy, vz = p2.vz - p0.vz;
         const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
         const len = Math.hypot(nx, ny, nz) || 1;
         const light = Math.max(0.25, (nx / len) * 0.5 + (ny / len) * 0.6 - (nz / len) * 0.6);
+        return { p0: p0, p1: p1, p2: p2, depth: (p0.z + p1.z + p2.z) / 3, light: light, color: t.color };
+      });
+
+      renderTris.sort((a, b) => b.depth - a.depth);
+
+      for (let i = 0; i < renderTris.length; i++) {
+        const t = renderTris[i];
+        ctx.beginPath();
+        ctx.moveTo(t.p0.x, t.p0.y);
+        ctx.lineTo(t.p1.x, t.p1.y);
+        ctx.lineTo(t.p2.x, t.p2.y);
+        ctx.closePath();
+
+        if (wireframe) {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        } else {
+          const r = Math.round(t.color[0] * t.light);
+          const g = Math.round(t.color[1] * t.light);
