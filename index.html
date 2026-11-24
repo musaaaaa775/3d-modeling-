@@ -11,11 +11,11 @@
     .top-bar {
       position: fixed; top: 16px; left: 16px; right: 16px;
       display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      padding: 14px 18px; background: rgba(15, 23, 42, 0.8);
+      padding: 14px 18px; background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 12px;
     }
     .top-bar h1 { font-size: 1rem; letter-spacing: 0.08em; }
-    .top-bar p { font-size: 0.85rem; color: #94a3b8; margin-top: 2px; }
+    .top-bar p { font-size: 0.85rem; color: #38bdf8; margin-top: 2px; }
     .controls { display: flex; gap: 8px; }
     button {
       background: #1e293b; color: #f1f5f9; border: 1px solid rgba(148, 163, 184, 0.3);
@@ -24,21 +24,21 @@
     button.active { border-color: #38bdf8; color: #38bdf8; }
     .project-bar {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 10px; padding: 10px; background: rgba(15, 23, 42, 0.8);
+      display: flex; gap: 10px; padding: 10px; background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 14px;
     }
   </style>
-  <script src="https://cloudflare.com"></script>
-  <script src="https://jsdelivr.net"></script>
-  <script src="https://jsdelivr.net"></script>
+  <script src="https://unpkg.com"></script>
+  <script src="https://unpkg.com"></script>
+  <script src="https://unpkg.com"></script>
 </head>
 <body>
   <canvas id="scene-canvas"></canvas>
 
   <header class="top-bar">
     <div>
-      <h1>3D WORKSHOP</h1>
-      <p id="model-info">Orbital Rocket — Work in Progress</p>
+      <h1>3D WORKSHOP v2</h1>
+      <p id="model-info">Starting 3D Engine...</p>
     </div>
     <div class="controls">
       <button id="wireframe-btn">Wireframe: OFF</button>
@@ -49,138 +49,148 @@
   <nav class="project-bar" id="project-bar"></nav>
 
   <script>
-    const PROJECTS = [
-      { name: 'Rocket v1', description: 'Orbital Rocket — Work in Progress', file: 'models/rocket.glb' },
-      { name: 'Project 2', description: 'Add your second 3D model here', file: 'models/project2.glb' }
-    ];
-
-    const canvas = document.getElementById('scene-canvas');
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x080b12);
-
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(4, 3, 6);
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 1.5;
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    keyLight.position.set(5, 8, 5);
-    scene.add(keyLight);
-
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 1);
-    rimLight.position.set(-5, 3, -5);
-    scene.add(rimLight);
-
-    scene.add(new THREE.GridHelper(12, 24, 0x334155, 0x1e293b));
-
-    const loader = new THREE.GLTFLoader();
-    let currentModel = null;
-    let wireframeMode = false;
-
-    function createPlaceholderRocket() {
-      const rocket = new THREE.Group();
-      const bodyMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.4, roughness: 0.3 });
-      const accentMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.5, roughness: 0.2 });
-
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 2.4, 24), bodyMat);
-      body.position.y = 1.4;
-      rocket.add(body);
-
-      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.9, 24), accentMat);
-      nose.position.y = 3.05;
-      rocket.add(nose);
-
-      for (let i = 0; i < 4; i++) {
-        const fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.5), accentMat);
-        const angle = (i * Math.PI) / 2;
-        fin.position.set(Math.cos(angle) * 0.5, 0.55, Math.sin(angle) * 0.5);
-        fin.rotation.y = -angle;
-        rocket.add(fin);
+    const statusEl = document.getElementById('model-info');
+    try {
+      if (typeof THREE === 'undefined') {
+        throw new Error('Three.js script failed to download');
       }
-      return rocket;
-    }
 
-    function setModel(object) {
-      if (currentModel) scene.remove(currentModel);
-      currentModel = object;
+      const PROJECTS = [
+        { name: 'Rocket v1', description: 'Orbital Rocket — Ready', file: 'models/rocket.glb' },
+        { name: 'Project 2', description: 'Second 3D Slot', file: 'models/project2.glb' }
+      ];
 
-      const box = new THREE.Box3().setFromObject(currentModel);
-      const size = box.getSize(new THREE.Vector3()).length();
-      const center = box.getCenter(new THREE.Vector3());
+      const canvas = document.getElementById('scene-canvas');
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x080b12);
 
-      currentModel.position.sub(center);
-      currentModel.position.y += (box.max.y - box.min.y) / 2;
-      if (size > 0) currentModel.scale.multiplyScalar(3.5 / size);
+      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(4, 3, 6);
 
-      applyWireframe(wireframeMode);
-      scene.add(currentModel);
-    }
-
-    function loadProject(index, buttonEl) {
-      const project = PROJECTS[index];
-      document.getElementById('model-info').textContent = project.description;
-      document.querySelectorAll('.project-bar button').forEach(b => b.classList.remove('active'));
-      if (buttonEl) buttonEl.classList.add('active');
-
-      loader.load(
-        project.file,
-        (gltf) => setModel(gltf.scene),
-        undefined,
-        () => setModel(createPlaceholderRocket())
-      );
-    }
-
-    const projectBar = document.getElementById('project-bar');
-    PROJECTS.forEach((proj, idx) => {
-      const btn = document.createElement('button');
-      btn.textContent = proj.name;
-      if (idx === 0) btn.classList.add('active');
-      btn.onclick = () => loadProject(idx, btn);
-      projectBar.appendChild(btn);
-    });
-
-    function applyWireframe(enabled) {
-      if (!currentModel) return;
-      currentModel.traverse((child) => {
-        if (child.isMesh && child.material) child.material.wireframe = enabled;
-      });
-    }
-
-    document.getElementById('wireframe-btn').onclick = (e) => {
-      wireframeMode = !wireframeMode;
-      e.target.textContent = 'Wireframe: ' + (wireframeMode ? 'ON' : 'OFF');
-      e.target.classList.toggle('active', wireframeMode);
-      applyWireframe(wireframeMode);
-    };
-
-    document.getElementById('spin-btn').onclick = (e) => {
-      controls.autoRotate = !controls.autoRotate;
-      e.target.textContent = 'Auto-Spin: ' + (controls.autoRotate ? 'ON' : 'OFF');
-      e.target.classList.toggle('active', controls.autoRotate);
-    };
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    loadProject(0);
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 1.5;
 
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      keyLight.position.set(5, 8, 5);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.2);
+      rimLight.position.set(-5, 3, -5);
+      scene.add(rimLight);
+
+      scene.add(new THREE.GridHelper(12, 24, 0x334155, 0x1e293b));
+
+      const loader = new THREE.GLTFLoader();
+      let currentModel = null;
+      let wireframeMode = false;
+
+      function createPlaceholderRocket() {
+        const rocket = new THREE.Group();
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.4, roughness: 0.3 });
+        const accentMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.5, roughness: 0.2 });
+
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 2.4, 24), bodyMat);
+        body.position.y = 1.4;
+        rocket.add(body);
+
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.45, 0.9, 24), accentMat);
+        nose.position.y = 3.05;
+        rocket.add(nose);
+
+        for (let i = 0; i < 4; i++) {
+          const fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.5), accentMat);
+          const angle = (i * Math.PI) / 2;
+          fin.position.set(Math.cos(angle) * 0.5, 0.55, Math.sin(angle) * 0.5);
+          fin.rotation.y = -angle;
+          rocket.add(fin);
+        }
+        return rocket;
+      }
+
+      function setModel(object) {
+        if (currentModel) scene.remove(currentModel);
+        currentModel = object;
+
+        const box = new THREE.Box3().setFromObject(currentModel);
+        const size = box.getSize(new THREE.Vector3()).length();
+        const center = box.getCenter(new THREE.Vector3());
+
+        currentModel.position.sub(center);
+        currentModel.position.y += (box.max.y - box.min.y) / 2;
+        if (size > 0) currentModel.scale.multiplyScalar(3.5 / size);
+
+        applyWireframe(wireframeMode);
+        scene.add(currentModel);
+      }
+
+      function loadProject(index, buttonEl) {
+        const project = PROJECTS[index];
+        statusEl.textContent = project.description;
+        document.querySelectorAll('.project-bar button').forEach(b => b.classList.remove('active'));
+        if (buttonEl) buttonEl.classList.add('active');
+
+        loader.load(
+          project.file,
+          (gltf) => setModel(gltf.scene),
+          undefined,
+          () => setModel(createPlaceholderRocket())
+        );
+      }
+
+      const projectBar = document.getElementById('project-bar');
+      PROJECTS.forEach((proj, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = proj.name;
+        if (idx === 0) btn.classList.add('active');
+        btn.onclick = () => loadProject(idx, btn);
+        projectBar.appendChild(btn);
+      });
+
+      function applyWireframe(enabled) {
+        if (!currentModel) return;
+        currentModel.traverse((child) => {
+          if (child.isMesh && child.material) child.material.wireframe = enabled;
+        });
+      }
+
+      document.getElementById('wireframe-btn').onclick = (e) => {
+        wireframeMode = !wireframeMode;
+        e.target.textContent = 'Wireframe: ' + (wireframeMode ? 'ON' : 'OFF');
+        e.target.classList.toggle('active', wireframeMode);
+        applyWireframe(wireframeMode);
+      };
+
+      document.getElementById('spin-btn').onclick = (e) => {
+        controls.autoRotate = !controls.autoRotate;
+        e.target.textContent = 'Auto-Spin: ' + (controls.autoRotate ? 'ON' : 'OFF');
+        e.target.classList.toggle('active', controls.autoRotate);
+      };
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      loadProject(0);
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    } catch (err) {
+      statusEl.textContent = 'Error: ' + err.message;
+      statusEl.style.color = '#f87171';
     }
-    animate();
   </script>
 </body>
 </html>
